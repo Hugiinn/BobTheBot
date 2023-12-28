@@ -4,9 +4,11 @@ Uses configuration file for token/keys.
 
 Example (/src/config/config.yml)
 
+```
 bot:
   token: token
 
 google:
   key: key
   cx: cx
+```
