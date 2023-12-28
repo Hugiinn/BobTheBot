@@ -8,6 +8,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/spf13/viper"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -30,6 +31,16 @@ func init() {
 }
 
 func main() {
+
+	viper.AddConfigPath("./config/")
+	viper.SetConfigName("config.yml")
+	viper.AddConfigPath(".")
+	viper.AutomaticEnv()
+	viper.SetConfigType("yml")
+
+	if err := viper.ReadInConfig(); err != nil {
+		fmt.Printf("Error reading config file, %s", err)
+	}
 
 	// Create Discord session
 	dg, err := discordgo.New("Bot " + Token)

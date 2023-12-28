@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/spf13/viper"
 )
 
 func commandHelp(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -17,8 +18,8 @@ func commandImage(s *discordgo.Session, m *discordgo.MessageCreate, args []strin
 	if len(args) == 2 {
 
 		if len(args[1]) < 13 {
-			googleKey := ""
-			googleCx := ""
+			googleKey := viper.GetString("google.key")
+			googleCx := viper.GetString("google.cx")
 
 			googleRequest := ("https://www.googleapis.com/customsearch/v1?key=" + googleKey + "&searchType=image&cx=" + googleCx + "&q=" + args[1])
 
