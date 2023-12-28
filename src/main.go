@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"os/signal"
@@ -20,16 +19,6 @@ type Items struct {
 	ImageLink string `json:"link"`
 }
 
-// CMD Variable
-var (
-	Token string
-)
-
-func init() {
-	flag.StringVar(&Token, "t", "", "Bot Token")
-	flag.Parse()
-}
-
 func main() {
 
 	viper.AddConfigPath("./config/")
@@ -43,7 +32,8 @@ func main() {
 	}
 
 	// Create Discord session
-	dg, err := discordgo.New("Bot " + Token)
+	token := viper.GetString("bot.token")
+	dg, err := discordgo.New("Bot " + token)
 	if err != nil {
 		fmt.Println("error creating Discord session,", err)
 		return
