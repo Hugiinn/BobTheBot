@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/spf13/viper"
@@ -15,39 +16,40 @@ func commandHelp(s *discordgo.Session, m *discordgo.MessageCreate) {
 }
 
 func commandImage(s *discordgo.Session, m *discordgo.MessageCreate, args []string) {
-	if len(args) == 2 {
+	googleArgs := args[1:]
+	googleString := strings.Join(googleArgs, "_")
 
-		if len(args[1]) < 13 {
-			googleKey := viper.GetString("google.key")
-			googleCx := viper.GetString("google.cx")
+	if len(googleString) < 13 {
 
-			googleRequest := ("https://www.googleapis.com/customsearch/v1?key=" + googleKey + "&searchType=image&cx=" + googleCx + "&q=" + args[1])
+		googleKey := viper.GetString("google.key")
+		googleCx := viper.GetString("google.cx")
 
-			res, err := http.Get(googleRequest)
-			if err != nil {
-				log.Fatal(err)
-			}
-			defer res.Body.Close()
+		googleRequest := ("https://www.googleapis.com/customsearch/v1?key=" + googleKey + "&searchType=image&safe=active&cx=" + googleCx + "&q=" + googleString)
 
-			body, err := io.ReadAll(res.Body)
-			if err != nil {
-				log.Fatal(err)
-			}
+		res, err := http.Get(googleRequest)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer res.Body.Close()
 
-			var response Response
-			json.Unmarshal(body, &response)
-
-			var imageLinkJSON = response.Response[0]
-
-			s.ChannelMessageSend(m.ChannelID, imageLinkJSON.ImageLink)
-
-		} else {
-			s.ChannelMessageSend(m.ChannelID, "Parameter too lang, doofus.")
+		body, err := io.ReadAll(res.Body)
+		if err != nil {
+			log.Fatal(err)
 		}
 
-	} else if len(args) > 2 {
-		s.ChannelMessageSend(m.ChannelID, "Too many parameters, doofus.")
+		var response Response
+		json.Unmarshal(body, &response)
+
+		var imageLinkJSON = response.Response[0]
+
+		s.ChannelMessageSend(m.ChannelID, imageLinkJSON.ImageLink)
+
 	} else {
-		s.ChannelMessageSend(m.ChannelID, "That requires a parameter, doofus.")
+		s.ChannelMessageSend(m.ChannelID, "Search parameter cannot exceed 13 characters.")
 	}
+}
+
+func commandGivePet(s *discordgo.Session, m *discordgo.MessageCreate) {
+	givePetsMessage := ("Pets " + "<@" + m.Author.ID + ">")
+	s.ChannelMessageSend(m.ChannelID, givePetsMessage)
 }

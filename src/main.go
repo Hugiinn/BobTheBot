@@ -7,8 +7,8 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/spf13/viper"
 	"github.com/bwmarrin/discordgo"
+	"github.com/spf13/viper"
 )
 
 type Response struct {
@@ -77,15 +77,21 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	// Split response
-	args := strings.Fields(m.Content)
+	// Catch any responses starting with ! particularly sticker responses caused Bob to crash
+	if strings.HasPrefix(m.Content, "!") {
 
-	commandName := args[0]
+		// Split response
+		args := strings.Fields(m.Content)
 
-	switch commandName {
-	case "!test":
-		commandHelp(s, m)
-	case "!image":
-		commandImage(s, m, args)
+		commandName := args[0]
+
+		switch commandName {
+		case "!test":
+			commandHelp(s, m)
+		case "!image":
+			commandImage(s, m, args)
+		case "!givepet":
+			commandGivePet(s, m)
+		}
 	}
 }
