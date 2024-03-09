@@ -5,7 +5,7 @@ Uses configuration file for token/keys.
 Example (/src/config/config.yml)
 
 ```
-bot:
+discord:
   token: token
 
 google:
