@@ -34,7 +34,7 @@ func main() {
 
 	dg, err := discordgo.New("Bot " + token)
 	if err != nil {
-		fmt.Println("error creating Discord session,", err)
+		ErrorLog.Println("error creating Discord session,", err)
 		return
 	}
 
@@ -48,12 +48,14 @@ func main() {
 	// Open Discord & listen
 	err = dg.Open()
 	if err != nil {
-		fmt.Println("error opening connection,", err)
+		//fmt.Println("error opening connection,", err)
+		ErrorLog.Println("error opening connection,", err)
 		return
 	}
 
 	// Escape on CTRL-C
 	fmt.Println("Bot is now running. Press CTRL-C to exit.")
+	InfoLog.Println("Started Bob.")
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-sc
@@ -66,6 +68,7 @@ func ready(s *discordgo.Session, event *discordgo.Ready) {
 
 	// Set playing status
 	s.UpdateGameStatus(0, "BAD GO CODE COMING THROUGH")
+	InfoLog.Println("Updated GameStatus")
 }
 
 // Called whenever a message is sent
@@ -86,7 +89,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		switch commandName {
 		case "!test":
-			commandHelp(s, m)
+			commandTest(s, m)
 		case "!image":
 			commandImage(s, m, args)
 		case "!givepet":
