@@ -2,13 +2,13 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/spf13/viper"
 )
 
 func commandHelp(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -16,13 +16,16 @@ func commandHelp(s *discordgo.Session, m *discordgo.MessageCreate) {
 }
 
 func commandImage(s *discordgo.Session, m *discordgo.MessageCreate, args []string) {
+	// Declare BotConfig for Google key/cx
 	googleArgs := args[1:]
 	googleString := strings.Join(googleArgs, "_")
 
 	if len(googleString) < 13 {
 
-		googleKey := viper.GetString("google.key")
-		googleCx := viper.GetString("google.cx")
+		googleKey := BotConfig.GoogleConfig.Key
+		googleCx := BotConfig.GoogleConfig.Cx
+
+		fmt.Print(googleKey)
 
 		googleRequest := ("https://www.googleapis.com/customsearch/v1?key=" + googleKey + "&searchType=image&safe=active&cx=" + googleCx + "&q=" + googleString)
 
@@ -36,6 +39,8 @@ func commandImage(s *discordgo.Session, m *discordgo.MessageCreate, args []strin
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		fmt.Print(res)
 
 		var response Response
 		json.Unmarshal(body, &response)

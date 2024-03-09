@@ -7,32 +7,31 @@ import (
 	"strings"
 	"syscall"
 
+	"gopkg.in/yaml.v3"
+
 	"github.com/bwmarrin/discordgo"
-	"github.com/spf13/viper"
 )
 
-type Response struct {
-	Response []Items `json:"items"`
-}
-
-type Items struct {
-	ImageLink string `json:"link"`
-}
+var BotConfig BotConfigStruct
 
 func main() {
 
-	viper.AddConfigPath("./config/")
-	viper.SetConfigName("config.yml")
-	viper.AddConfigPath(".")
-	viper.AutomaticEnv()
-	viper.SetConfigType("yml")
+	// Load config file and umarshal
+	data, err := os.ReadFile("./config/config.yml")
 
-	if err := viper.ReadInConfig(); err != nil {
-		fmt.Printf("Error reading config file, %s", err)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	if err := yaml.Unmarshal(data, &BotConfig); err != nil {
+		fmt.Println(err)
+		return
 	}
 
 	// Create Discord session
-	token := viper.GetString("bot.token")
+	token := BotConfig.DiscordConfig.Token
+
 	dg, err := discordgo.New("Bot " + token)
 	if err != nil {
 		fmt.Println("error creating Discord session,", err)
