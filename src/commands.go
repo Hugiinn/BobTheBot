@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"io"
+	"math/rand"
 	"net/http"
 	"strings"
 
@@ -34,16 +35,27 @@ func commandImage(s *discordgo.Session, m *discordgo.MessageCreate, args []strin
 
 		body, err := io.ReadAll(res.Body)
 		if err != nil {
-			ErrorLog.Println(err)
+
 		}
 
 		var response Response
 		json.Unmarshal(body, &response)
 
-		var imageLinkJSON = response.Response[0]
+		if len(response.Response) > 0 {
 
-		s.ChannelMessageSend(m.ChannelID, imageLinkJSON.ImageLink)
-		InfoLog.Println(m.Author.Username, "(", m.Author.ID, ")", "used !image with args:", args)
+			jsonLength := len(response.Response)
+			var randomNumber = rand.Intn(jsonLength - 0)
+
+			var imageLinkJSON = response.Response[randomNumber]
+
+			s.ChannelMessageSend(m.ChannelID, imageLinkJSON.ImageLink)
+			InfoLog.Println(m.Author.Username, "(", m.Author.ID, ")", "used !image with args:", args)
+
+		} else {
+
+			s.ChannelMessageSend(m.ChannelID, "Google returned an empty result, try another search parameter.")
+			ErrorLog.Println(m.Author.Username, "(", m.Author.ID, ")", "used !image with args:", args, "but the response from Google is empty.")
+		}
 
 	} else {
 		s.ChannelMessageSend(m.ChannelID, "Search parameter cannot exceed 13 characters.")
