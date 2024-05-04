@@ -6,18 +6,22 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
+	"strconv"
 
 	"gopkg.in/yaml.v3"
 
 	"github.com/bwmarrin/discordgo"
 )
 
+// Declare global variables
+// General bot config
 var BotConfig BotConfigStruct
+// Default countNumber
+var countNumber = 0
 
 func main() {
-
 	// Load config file and umarshal
-	data, err := os.ReadFile("./config/config.yml")
+	data, err := os.ReadFile("../config/config.yml")
 
 	if err != nil {
 		fmt.Println(err)
@@ -29,12 +33,15 @@ func main() {
 		return
 	}
 
+	// Load count file
+	countNumber = loadCountFile()
+
 	// Create Discord session
 	token := BotConfig.DiscordConfig.Token
 
 	dg, err := discordgo.New("Bot " + token)
 	if err != nil {
-		ErrorLog.Println("error creating Discord session,", err)
+		ErrorLog.Println("Error creating Discord session -", err)
 		return
 	}
 
@@ -49,7 +56,7 @@ func main() {
 	err = dg.Open()
 	if err != nil {
 		//fmt.Println("error opening connection,", err)
-		ErrorLog.Println("error opening connection,", err)
+		ErrorLog.Println("Error opening Discord connection-", err)
 		return
 	}
 
@@ -65,7 +72,6 @@ func main() {
 }
 
 func ready(s *discordgo.Session, event *discordgo.Ready) {
-
 	// Set playing status
 	s.UpdateGameStatus(0, "BAD GO CODE COMING THROUGH")
 	InfoLog.Println("Updated GameStatus")
@@ -73,7 +79,6 @@ func ready(s *discordgo.Session, event *discordgo.Ready) {
 
 // Called whenever a message is sent
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
-
 	// Ignore self
 	if m.Author.ID == s.State.User.ID {
 		return
@@ -94,6 +99,30 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			commandImage(s, m, args)
 		case "!givepet":
 			commandGivePet(s, m)
+		case "!count":
+			commandCount(s, m, args)
 		}
 	}
+}
+
+func loadCountFile() int {
+	countFileContent, error := os.ReadFile("../files/count.txt")
+
+	if error != nil {
+		ErrorLog.Println("Could not read file")
+	}
+
+	countFileContentStr := string(countFileContent)
+
+	countFileContentInt, err := strconv.Atoi(countFileContentStr)
+
+	// Check if file content is int
+	if err != nil {
+		ErrorLog.Println("File content loaded is not a number, defaulting to 0 -", err)
+	} else {
+		countNumber = countFileContentInt
+		InfoLog.Println("Count file loaded, count is:", countFileContentStr)
+	}
+
+	return countNumber
 }

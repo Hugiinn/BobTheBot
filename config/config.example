@@ -1,0 +1,5 @@
+discord:
+  token: X
+google:
+  key: Y
+  cx: Z
